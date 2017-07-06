@@ -1,3 +1,10 @@
+src/WordClockESP/Builds/*
+src/WordClockESP/Makefiles/*
+src/WordClockESP/Utilities/*
+src/WordClockESP/Makefile
+
+**/.DS_Store
+
 # Prerequisites
 *.d
 
