@@ -65,7 +65,7 @@ typedef struct {
 typedef struct {
     byte x;
     byte y;
-    byte len;
+    byte length;
     const char* word;
 } tCoordinate;
 
@@ -85,6 +85,7 @@ extern const tNumber numbers[];
 extern const tNumber numberWords[];
 extern const tCoordinate* hours[];
 
+extern const tCoordinate coSec;
 extern const tCoordinate coIt;
 extern const tCoordinate coIs;
 extern const tCoordinate coAm;
@@ -121,5 +122,8 @@ extern const tCoordinate coThu;
 extern const tCoordinate coFri;
 extern const tCoordinate coSat;
 extern const tCoordinate coSun;
+
+// other
+extern const tCoordinate coWifi;
 
 #endif

@@ -9,10 +9,18 @@
 #ifndef NTP_Utils_h
 #define NTP_Utils_h
 
+typedef enum {
+    ws_disconnected,
+    ws_connecting,
+    ws_failed,
+    ws_connected,
+} WifiStatus;
+
 
 void initWifi();
 void initUdp();
 bool isWifiConnected();
+WifiStatus wifiStatus();
 
 void syncTime();
 

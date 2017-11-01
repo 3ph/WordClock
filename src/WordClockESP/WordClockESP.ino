@@ -11,7 +11,7 @@
 // Version		<#version#>
 //
 // Copyright	© Tomas Friml, 2016
-// Licence		<#licence#>
+// Licence		MIT
 //
 // See         ReadMe.txt for references
 //
@@ -22,10 +22,21 @@
 
 #define BTN1_PIN 5
 #define BTN2_PIN 4
+#define LIGHT_SENSOR_PIN A0
+
+#define MIN_LIGHT_VALUE 290
+#define MAX_LIGHT_VALUE 1024
+#define MIN_BRIGHTNESS 50
+#define MAX_BRIGHTNESS 250
 
 time_t minuteTimer = 0;
 time_t hourTimer = 0;
 time_t secondTimer = 0;
+time_t milliseconcdTimer = 0;
+
+float filterVal = 0.2;  // this determines smoothness  - .0001 is max  1 is off (no smoothing)
+float smoothedVal;      // this holds the last loop value just use a unique variable for every different sensor that needs smoothing
+
 
 // Prototypes
 bool timerExpired(time_t timer, time_t timeout, time_t curTime);
@@ -47,10 +58,14 @@ void setup()
     pinMode(BTN1_PIN, INPUT);
     pinMode(BTN2_PIN, INPUT);
     
+    showConnection(wifiStatus());
+    
     initClock();
     initWifi();
     
     for (int i = 0; i < numWifiAttempts; ++i) {
+        Serial.println("Attempt");
+        showConnection(wifiStatus());
         if (isWifiConnected() == false) {
             // wait a bit 
             delay(2000);
@@ -62,10 +77,16 @@ void setup()
     }
     
     if (isWifiConnected()) {
+        Serial.println("Connected - sync time");
         initUdp();
         
         syncTime();
     }
+    
+    // show initial time & day
+    showTime();
+    showDayOfWeek();
+    showConnection(wifiStatus());
 }
 
 // Add loop code
@@ -74,37 +95,56 @@ void loop()
     int btn1State = digitalRead(BTN1_PIN);
     int btn2State = digitalRead(BTN2_PIN);
     
-    /*
     if (btn1State == HIGH) {
-        Serial.println("BTN1 pressed");
+        //Serial.println("BTN1 pressed");
         handleBtn1();
     }
     
+    /*
     if (btn2State == HIGH) {
         Serial.println("BTN2 pressed");
         handleBtn2();
     }
      */
     
-    time_t curTime = now();
+    int lightSensorValue = analogRead(LIGHT_SENSOR_PIN);
+    smooth(lightSensorValue);
+    
+    time_t curTime = millis();
+    //Serial.println(millis());
     
     // toggle led once a second
-    if (timerExpired(secondTimer, 1, curTime)) {
-        Serial.println("ONE SEC");
-        toggleOneSecLed();
-        secondTimer = curTime;
-    
-        // update time every minute
-        if (timerExpired(minuteTimer, 60, curTime)) {
-            Serial.println("ONE MIN");
-            showTime();
-            minuteTimer = curTime;
+    if (timerExpired(milliseconcdTimer, 1 * 100, curTime)) {
+        milliseconcdTimer = curTime;
+        
+        // brightness
+        updateBrightness();
+        
+        
+        
+        if (timerExpired(secondTimer, 1 * 1000, curTime)) {
+            // show wifi status
+            showConnection(wifiStatus());
+
             
-            // update day every hour
-            if (timerExpired(hourTimer, 60*60, curTime)) {
-                Serial.println("ONE HOUR");
+            Serial.println("ONE SEC");
+            toggleOneSecLed();
+            secondTimer = curTime;
+            
+            // update time every minute
+            if (timerExpired(minuteTimer, 60 * 1000, curTime)) {
+                Serial.println("ONE MIN");
+                clearScreen();
+                showTime();
+                minuteTimer = curTime;
+                
                 showDayOfWeek();
-                hourTimer = curTime;
+                
+                // update day every hour
+                if (timerExpired(hourTimer, 60*60 * 1000, curTime)) {
+                    Serial.println("ONE HOUR");
+                    hourTimer = curTime;
+                }
             }
         }
     }
@@ -118,6 +158,18 @@ bool timerExpired(time_t timer, time_t timeout, time_t now) {
     return (timer + timeout) < now;
 }
 
+void updateBrightness() {
+    
+    int lightSensorValue = smoothedVal;
+    int rawDiff = MAX_LIGHT_VALUE - MIN_LIGHT_VALUE;
+    int rawRatio = rawDiff / (lightSensorValue - MIN_LIGHT_VALUE);
+    int brightnessDiff = MAX_BRIGHTNESS - MIN_BRIGHTNESS;
+    byte newBrightness = MIN_BRIGHTNESS + brightnessDiff * rawRatio;
+    setBrightness(newBrightness);
+    
+    //Serial.println(lightSensorValue);
+}
+
 void handleBtn1() {
     // cycle through weather?
     
@@ -126,6 +178,24 @@ void handleBtn1() {
 void handleBtn2() {
     
 }
+
+int smooth(int data){
+    
+    
+    if (filterVal > 1){      // check to make sure param's are within range
+        filterVal = .99;
+    }
+    else if (filterVal <= 0){
+        filterVal = 0;
+    }
+    
+    smoothedVal = (data * (1 - filterVal)) + (smoothedVal  *  filterVal);
+    
+    //Serial.println(smoothedVal);
+    
+    return (int)smoothedVal;
+}
+
 
 /*
 // Prints a rainbow on the ENTIRE LED strip.

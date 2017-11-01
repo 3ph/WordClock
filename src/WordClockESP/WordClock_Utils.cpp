@@ -10,6 +10,7 @@
 #include "Adafruit_NeoPixel.h"
 
 #include "DisplayData.h"
+//#include "Color.h"
 
 #include "WS2812_Definitions.h"
 
@@ -17,7 +18,7 @@
 #include <TimeLib.h>
 
 // Set parameters
-#define WS2811_DATA_PIN 14
+#define WS2811_DATA_PIN D5
 
 #define DBG_PRINT 1
 
@@ -32,10 +33,16 @@ void initClock()
     strip.show();   // ...but the strip don't actually update until you call this.
     
     startUpSequence();
+    
+    strip.setBrightness(50);
 }
 
 void updateStrip() {
     strip.show();
+}
+
+void setBrightness(byte brightness) {
+    strip.setBrightness(brightness);
 }
 
 void startUpSequence() {
@@ -43,15 +50,21 @@ void startUpSequence() {
         if (i > 0) {
             clearPixel(i-1);
         }
-        setPixel(i);
+        setPixel(i, BLUE);
         delay(50);
         updateStrip();
     }
+    clearPixel(WC_NUM_LEDS-1);
+    updateStrip();
 }
 
 void showTime() {
     // clear current time
     clearTime();
+    
+    // show "it is"
+    wordFor(&coIt, true, BROWN);
+    wordFor(&coIs, true, BROWN);
     
     time_t t = now();
     bool to = false;
@@ -62,6 +75,10 @@ void showTime() {
     const tCoordinate* coHourStr = 0;
     const tCoordinate* coMinStr = 0;
     const tCoordinate* coMinPlusStr = 0;
+    
+    uint32_t minuteColor = DIMGRAY;
+    uint32_t hourColor = BEIGE;
+    uint32_t dayColor = ORANGE;
     
     // MINUTE
     int min = minute(t);
@@ -122,19 +139,20 @@ void showTime() {
     Serial.println(coSuffixStr->word);
 #endif
     
-    
     // show minutes
-    wordFor(coMinStr, true);
+    wordFor(coMinStr, true, minuteColor);
     if (coMinPlusStr) {
-        wordFor(coMinPlusStr, true);
+        wordFor(coMinPlusStr, true, minuteColor);
     }
-    wordFor(coPrefixStr, true);
+    wordFor(coPrefixStr, true, minuteColor);
     
     // show hours
-    wordFor(coHourStr, true);
+    wordFor(coHourStr, true, hourColor);
     
     // show suffix
-    wordFor(coSuffixStr, true);
+    wordFor(coSuffixStr, true, dayColor);
+    
+    updateStrip();
 }
 
 void showDayOfWeek() {
@@ -165,38 +183,56 @@ void showDayOfWeek() {
     Serial.println(coDayStr->word);
 #endif
     
-    wordFor(coDayStr, true);
+    wordFor(coDayStr, true, GREEN);
+    
 }
 
-void wordFor(const tCoordinate* coordinate, bool isVisible)
+void showConnection(WifiStatus status) {
+    int ledNum = coordinateToLedNum(&coWifi);
+    int color = BLUE;
+    
+    switch (status) {
+        case ws_connecting: color = ORANGE;
+            break;
+        case ws_failed: color = RED;
+            break;
+        case ws_connected: color = GREEN;
+            break;
+        default: color = YELLOW;
+    }
+    
+    setPixel(ledNum, color);
+}
+
+void wordFor(const tCoordinate* coordinate, bool isVisible, uint32_t color)
 {
     // figure out which strip we should turn on
     // x * COLS + (y - 1) * COLS
     
-    int startLED = coordinate->x + (coordinate->y - 1) * WC_NUM_COLS;
-    int endLED = startLED + coordinate->len;
     
-    /*
+    int startLED = coordinateToLedNum(coordinate);
+    int endLED = startLED + coordinate->length - 1;
+    
+    Serial.println(coordinate->word);
     Serial.println(startLED,DEC);
     Serial.println(endLED,DEC);
-    */
-    
-    char color = (isVisible ? 120 : 0);
+    Serial.println(coordinate->length,DEC);
     
     for (int i = startLED; i <= endLED; ++i) {
-        strip.setPixelColor(i, color + i);
+        setPixel(i, (isVisible ? color : BLACK));
     }
-    
-    strip.show();
 }
 
 void toggleOneSecLed() {
     static bool on = false;
     
+    int ledNum = coordinateToLedNum(&coSec);
+    Serial.println(ledNum,DEC);
+    
     if (on) {
-        strip.setPixelColor(3, BLACK);
+        clearPixel(ledNum);
     } else {
-        strip.setPixelColor(3, YELLOW);
+        setPixel(ledNum, YELLOW);
     }
     on = !on;
 }
@@ -223,6 +259,30 @@ void clearPixel(byte position) {
     strip.setPixelColor(position, 0);
 }
 
-void setPixel(byte position) {
-    strip.setPixelColor(position, 128);
+void setPixel(byte position, uint32_t color) {
+    strip.setPixelColor(position, color);
+}
+
+/*
+ 4  3  2  1  0
+ 5  6  7  8  9
+ 14 13 12 11 10
+ 
+ even rows
+ (rows + 1)*cols - (col+1) - (len-1) -> (rows + 1)*cols - col - len
+ 
+ (0,2) -> (2+1)*5 - 0 - 3 = 12
+ (2,2) -> (2+1)*5 - 2 - 3 = 10
+ PAP -> len = 3
+ 
+ */
+
+int coordinateToLedNum(const tCoordinate* coordinate) {
+    if (coordinate->y % 2 == 0) {
+        // even rows are reversed
+        return (coordinate->y + 1) * WC_NUM_COLS - coordinate->x - coordinate->length;
+    } else {
+        // odd rows are correct
+        return coordinate->x + coordinate->y * WC_NUM_COLS;
+    }
 }

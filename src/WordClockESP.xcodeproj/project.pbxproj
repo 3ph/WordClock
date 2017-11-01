@@ -378,6 +378,10 @@
 		AA2A161109195843AA0001E4 /* Adafruit_NeoPixel.h in Sources */ = {isa = PBXBuildFile; fileRef = AAAA161109195843AA0001E4 /* Adafruit_NeoPixel.h */; };
 		AA2A161109195843AA0001E5 /* esp8266.c in Sources */ = {isa = PBXBuildFile; fileRef = AAAA161109195843AA0001E5 /* esp8266.c */; };
 		C32860FE1DD3002600A72CD5 /* WordClockESP.ino in Sources */ = {isa = PBXBuildFile; fileRef = C3F860FE1DD3002600A72CD5 /* WordClockESP.ino */; };
+		C3CE3A961F9761420040515B /* WordClock_Utils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C3F861141DD3024600A72CD5 /* WordClock_Utils.cpp */; };
+		C3CE3A971F9761420040515B /* DisplayData.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C3F861161DD3025200A72CD5 /* DisplayData.cpp */; };
+		C3CE3A981F9761420040515B /* NTP_Utils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C35AE3DE1DF7F35000FADC88 /* NTP_Utils.cpp */; };
+		C3CE3A9A1F9762D70040515B /* WeatherUtils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C3CE3A991F9762D70040515B /* WeatherUtils.cpp */; };
 		C3F860791DD3002600A72CD5 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C3F860781DD3002600A72CD5 /* main.cpp */; };
 /* End PBXBuildFile section */
 
@@ -756,6 +760,14 @@
 		C35AE3D91DF7EC9E00FADC88 /* DS1302RTC.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DS1302RTC.h; sourceTree = "<group>"; };
 		C35AE3DE1DF7F35000FADC88 /* NTP_Utils.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = NTP_Utils.cpp; sourceTree = "<group>"; };
 		C35AE3DF1DF7F35000FADC88 /* NTP_Utils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NTP_Utils.h; sourceTree = "<group>"; };
+		C3CE3A8F1F975FF10040515B /* JsonStreamingParser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = JsonStreamingParser.h; path = lib/JsonStreamingParser.h; sourceTree = "<group>"; };
+		C3CE3A901F975FF10040515B /* WundergroundClient.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = WundergroundClient.cpp; path = lib/WundergroundClient.cpp; sourceTree = "<group>"; };
+		C3CE3A911F975FF10040515B /* WundergroundClient.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = WundergroundClient.h; path = lib/WundergroundClient.h; sourceTree = "<group>"; };
+		C3CE3A921F975FF10040515B /* JsonListener.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = JsonListener.h; path = lib/JsonListener.h; sourceTree = "<group>"; };
+		C3CE3A931F975FF20040515B /* JsonListener.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = JsonListener.cpp; path = lib/JsonListener.cpp; sourceTree = "<group>"; };
+		C3CE3A941F975FF20040515B /* JsonStreamingParser.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = JsonStreamingParser.cpp; path = lib/JsonStreamingParser.cpp; sourceTree = "<group>"; };
+		C3CE3A951F9761320040515B /* WeatherUtils.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WeatherUtils.h; sourceTree = "<group>"; };
+		C3CE3A991F9762D70040515B /* WeatherUtils.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = WeatherUtils.cpp; sourceTree = "<group>"; };
 		C3F860751DD3002600A72CD5 /* Index */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = Index; sourceTree = BUILT_PRODUCTS_DIR; };
 		C3F860781DD3002600A72CD5 /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 		C3F8607A1DD3002600A72CD5 /* Makefile */ = {isa = PBXFileReference; explicitFileType = sourcecode.make; path = Makefile; sourceTree = "<group>"; };
@@ -2108,6 +2120,14 @@
 		C3F860771DD3002600A72CD5 /* WordClockESP */ = {
 			isa = PBXGroup;
 			children = (
+				C35AE3DF1DF7F35000FADC88 /* NTP_Utils.h */,
+				C35AE3DE1DF7F35000FADC88 /* NTP_Utils.cpp */,
+				C3F861171DD3025200A72CD5 /* DisplayData.h */,
+				C3F861161DD3025200A72CD5 /* DisplayData.cpp */,
+				C3F861151DD3024600A72CD5 /* WordClock_Utils.h */,
+				C3F861141DD3024600A72CD5 /* WordClock_Utils.cpp */,
+				C3CE3A951F9761320040515B /* WeatherUtils.h */,
+				C3CE3A991F9762D70040515B /* WeatherUtils.cpp */,
 				C3F861131DD3023600A72CD5 /* Library */,
 				C3F860781DD3002600A72CD5 /* main.cpp */,
 				C3F8607A1DD3002600A72CD5 /* Makefile */,
@@ -2278,13 +2298,13 @@
 		C3F861131DD3023600A72CD5 /* Library */ = {
 			isa = PBXGroup;
 			children = (
+				C3CE3A931F975FF20040515B /* JsonListener.cpp */,
+				C3CE3A921F975FF10040515B /* JsonListener.h */,
+				C3CE3A941F975FF20040515B /* JsonStreamingParser.cpp */,
+				C3CE3A8F1F975FF10040515B /* JsonStreamingParser.h */,
+				C3CE3A901F975FF10040515B /* WundergroundClient.cpp */,
+				C3CE3A911F975FF10040515B /* WundergroundClient.h */,
 				C3F861181DD3025200A72CD5 /* WS2812_Definitions.h */,
-				C35AE3DF1DF7F35000FADC88 /* NTP_Utils.h */,
-				C35AE3DE1DF7F35000FADC88 /* NTP_Utils.cpp */,
-				C3F861171DD3025200A72CD5 /* DisplayData.h */,
-				C3F861161DD3025200A72CD5 /* DisplayData.cpp */,
-				C3F861151DD3024600A72CD5 /* WordClock_Utils.h */,
-				C3F861141DD3024600A72CD5 /* WordClock_Utils.cpp */,
 			);
 			name = Library;
 			sourceTree = "<group>";
@@ -2444,10 +2464,12 @@
 			files = (
 				C3F860791DD3002600A72CD5 /* main.cpp in Sources */,
 				C32860FE1DD3002600A72CD5 /* WordClockESP.ino in Sources */,
+				C3CE3A9A1F9762D70040515B /* WeatherUtils.cpp in Sources */,
 				AA2A161109195843AA000005 /* abi.cpp in Sources */,
 				AA2A161109195843AA000006 /* Arduino.h in Sources */,
 				AA2A161109195843AA000007 /* base64.cpp in Sources */,
 				AA2A161109195843AA000008 /* base64.h in Sources */,
+				C3CE3A961F9761420040515B /* WordClock_Utils.cpp in Sources */,
 				AA2A161109195843AA000009 /* binary.h in Sources */,
 				AA2A161109195843AA00000A /* cbuf.cpp in Sources */,
 				AA2A161109195843AA00000B /* cbuf.h in Sources */,
@@ -2607,6 +2629,7 @@
 				AA2A161109195843AA0000C8 /* socket.h in Sources */,
 				AA2A161109195843AA0000C9 /* util.h in Sources */,
 				AA2A161109195843AA0000CA /* w5100.cpp in Sources */,
+				C3CE3A981F9761420040515B /* NTP_Utils.cpp in Sources */,
 				AA2A161109195843AA0000CB /* w5100.h in Sources */,
 				AA2A161109195843AA0000CE /* GDBStub.h in Sources */,
 				AA2A161109195843AA0000D0 /* gdbstub-cfg.h in Sources */,
@@ -2783,6 +2806,7 @@
 				AA2A161109195843AA0001B1 /* netif.c in Sources */,
 				AA2A161109195843AA0001B2 /* pbuf.c in Sources */,
 				AA2A161109195843AA0001B3 /* raw.c in Sources */,
+				C3CE3A971F9761420040515B /* DisplayData.cpp in Sources */,
 				AA2A161109195843AA0001B4 /* sntp.c in Sources */,
 				AA2A161109195843AA0001B5 /* stats.c in Sources */,
 				AA2A161109195843AA0001B6 /* sys.c in Sources */,

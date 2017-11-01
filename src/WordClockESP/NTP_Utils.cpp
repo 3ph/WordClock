@@ -7,6 +7,8 @@
 //
 
 // NTP
+#include "NTP_Utils.h"
+
 #include <ESP8266WiFi.h>
 #include <WiFiUdp.h>
 #include <Time.h>
@@ -16,12 +18,14 @@
 unsigned long sendNTPpacket(IPAddress& address);
 
 // WiFi settings
-const char ssid[] = "Europa";
-const char pass[] = "H1cSuntL30n3s";
+const char ssid[] = "YOUR SSID";
+const char pass[] = "YOUR PASSWORD";
 
-const char ntpServerName[] = "0.nz.pool.ntp.org";
+const char ntpServerName[] = "pool.ntp.org";
 
 unsigned int localPort = 2390;      // local port to listen for UDP packets
+WifiStatus status = ws_disconnected;
+
 
 TimeChangeRule nzDT = {"NZDT", Last, Sun, Sep, 2, 780};  //NZDT - +13 hours
 TimeChangeRule nzST = {"NZST", First, Sun, Apr, 2, 720}; //NZST - +12 hours
@@ -38,6 +42,7 @@ WiFiUDP udp; // A UDP instance to let us send and receive packets over UDP
 
 void initWifi()
 {
+    status = ws_connected;
     WiFi.begin(ssid, pass);
 }
 
@@ -49,8 +54,21 @@ void initUdp() {
 }
 
 bool isWifiConnected() {
+    WiFi.printDiag(Serial);
     return WiFi.status() == WL_CONNECTED;
 }
+
+WifiStatus wifiStatus() {
+    switch (WiFi.status()) {
+        case WL_CONNECTED: return ws_connected;
+        case WL_NO_SSID_AVAIL: return ws_failed;
+        case WL_SCAN_COMPLETED: return ws_connecting;
+        case WL_CONNECT_FAILED: return ws_failed;
+        case WL_CONNECTION_LOST: return ws_failed;
+        default: return ws_disconnected;
+    }
+}
+
 
 void syncTime() {
     if (isWifiConnected()) {
@@ -58,9 +76,11 @@ void syncTime() {
         IPAddress timeServerIP; // time.nist.gov NTP server address
         WiFi.hostByName(ntpServerName, timeServerIP);
 
+        Serial.print("IP: - ");
+        Serial.println(timeServerIP.toString());
         sendNTPpacket(timeServerIP); // send an NTP packet to a time server
         // wait to see if a reply is available
-        delay(1000);
+        delay(2000);
   
         int cb = udp.parsePacket();
         if (!cb) {
